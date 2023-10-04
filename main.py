@@ -7,21 +7,21 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-@app.route('/download', methods=['POST'])
+@app.route('/download', methods=['POST','GET'])
 def download():
     video_url = request.form['video_url']
     try:
+        info_dict = yt_dlp.YoutubeDL().extract_info(video_url, download=False)
+        video_title = info_dict.get('title', 'video')
+        video_ext = info_dict.get('ext', 'mp4')
         ydl_opts = {
             'format': 'best',
-            'outtmpl': 'downloads/%(title)s.%(ext)s',
+            'outtmpl': f'C:\\Users\\hp\\Downloads\\{video_title}.{video_ext}',
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(video_url, download=False)
-            video_title = info_dict.get('title', 'video')
-            video_ext = info_dict.get('ext', 'mp4')
             ydl.download([video_url])
-            video_path = f'downloads/{video_title}.{video_ext}'
-            return send_file(video_path, as_attachment=True)
+            return render_template('index.html')
+
     except Exception as e:
         return str(e)
 
