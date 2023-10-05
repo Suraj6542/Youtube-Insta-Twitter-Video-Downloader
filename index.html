@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-    <link rel="stylesheet" href="style.css">
 
 <head>
     <meta charset="UTF-8">
@@ -15,23 +14,25 @@
         }
 
         .hero-section {
-            background-image: url('background-image.jpg');
+            background-image: url('back.jpg');
             background-size: cover;
             background-position: center;
             color: #fff;
             text-align: center;
             padding: 50px;
-            margin-bottom: 10px; /* Adjusted margin-bottom */
+            margin-bottom: 10px;
+            position: relative;
         }
 
-        .hero-section h1 {
-            font-size: 36px;
-            margin-bottom: 20px;
-        }
-
-        .hero-section p {
-            font-size: 18px;
-            margin-bottom: 20px;
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: -1;
         }
 
         .main {
@@ -40,8 +41,8 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            margin-top: 1px; /* Adjusted margin-top */
-            margin-bottom: 15px; /* Adjusted margin-bottom */
+            margin-top: 1px;
+            margin-bottom: 15px;
         }
 
         .features {
@@ -76,9 +77,12 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             margin-top: 20px;
             width: 80%;
+            position: relative;
+            
         }
 
-        h1, h4 {
+        h1,
+        h4 {
             color: #333;
         }
 
@@ -105,13 +109,37 @@
         button:hover {
             background-color: #0056b3;
         }
+
+        .progress-bar {
+    width: 50%;  
+    height: 13px;  
+    background-color: #ddd;
+    border-radius: 2px;  
+    margin-top: 10px;
+    margin-bottom: 5px;
+    overflow: hidden;
+    position: absolute;
+    bottom: 0;  
+    left: 25%;  
+}
+
+.progress {
+    height: 100%;
+    width: 0;
+    background-color: #4CAF50;
+    border-radius: 2px;  
+    text-align: center;
+    line-height: 4px;  
+    color: #fff;
+}
     </style>
 </head>
 
 <body>
     <div class="hero-section">
         <h1>Download YouTube Videos with Ease</h1>
-        <p style="color: black;">Simple, fast, and free YouTube video downloader. Paste the link and get your video!</p>
+        <p style="color: black;">Simple, fast, and free YouTube video downloader. Paste the link and get your
+            video!</p>
     </div>
 
     <div class="main">
@@ -134,12 +162,47 @@
         <div class="container">
             <h1>YouTube Video Downloader</h1>
             <h4>Paste Your YouTube Video Link Here</h4>
-            <form method="post" action="/download">
+            <form id="downloadForm" method="post" action="/download">
                 <input type="text" name="video_url" placeholder="Enter YouTube Video URL" required>
                 <br><br>
                 <button type="submit">Download</button>
             </form>
+
+            <!-- Progress bar directly within the container -->
+            <div class="progress-bar">
+                <div id="progress" class="progress"></div>
+            </div>
         </div>
+
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                $("#downloadForm").submit(function (event) {
+                    event.preventDefault();
+                    $.ajax({
+                        type: $(this).attr("method"),
+                        url: $(this).attr("action"),
+                        data: $(this).serialize(),
+                        success: function (response) {
+                            console.log("Download completed!");
+                        },
+                        error: function (error) {
+                            console.error("Error:", error.responseText);
+                        },
+                        xhrFields: {
+                            onprogress: function (e) {
+                                if (e.lengthComputable) {
+                                    var percent = (e.loaded / e.total) * 100;
+                                    $("#progress").width(percent + "%");
+                                    $("#progress").text(percent.toFixed(2) + "%");
+                                }
+                            }
+                        },
+                        crossDomain: true,
+                    });
+                });
+            });
+        </script>
     </div>
 </body>
 
